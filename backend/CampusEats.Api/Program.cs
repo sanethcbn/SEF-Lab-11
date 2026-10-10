@@ -19,7 +19,7 @@ builder.Services.AddEndpointsApiExplorer();
 
 // ---------------------------------------
 // 2. CORS Configuration
-// Allow Vercel React Frontend
+// Allow Vercel Production and Preview URLs
 // ---------------------------------------
 
 builder.Services.AddCors(options =>
@@ -27,7 +27,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy("Frontend", policy =>
     {
         policy
-            .WithOrigins("https://sef-lab-11-nine.vercel.app")
+            .WithOrigins(
+                "https://sef-lab-11-nine.vercel.app",
+                "https://sef-lab-11-o5wmzn6lc-saneths-projects.vercel.app"
+            )
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -172,36 +175,42 @@ using (var scope = app.Services.CreateScope())
 }
 
 // ---------------------------------------
-// 9. Swagger Middleware
+// 9. Swagger and HTTPS Configuration
 // ---------------------------------------
 
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+
+    app.UseHttpsRedirection();
 }
 
+// Render handles HTTPS at the hosting platform.
+
 // ---------------------------------------
-// 10. HTTP Middleware
+// 10. Routing and CORS Middleware
 // ---------------------------------------
 
-app.UseHttpsRedirection();
+app.UseRouting();
 
-// Allow frontend API requests
 app.UseCors("Frontend");
 
-// Authentication must be before Authorization
+// ---------------------------------------
+// 11. Authentication and Authorization
+// ---------------------------------------
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 // ---------------------------------------
-// 11. Map Controllers
+// 12. Map Controllers
 // ---------------------------------------
 
 app.MapControllers();
 
 // ---------------------------------------
-// 12. Run Application
+// 13. Run Application
 // ---------------------------------------
 
 app.Run();
