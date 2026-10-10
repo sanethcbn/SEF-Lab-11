@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import MenuList from "../components/MenuList";
 import { useDebounce } from "../hooks/useDebounce";
@@ -8,11 +9,21 @@ function MenuPage() {
 
   const debounced = useDebounce(query, 400);
 
+  // Read API base URL from environment variable
+  const API = import.meta.env.VITE_API_URL;
+
+  // Use backend API if configured, otherwise local JSON
+  const menuUrl =
+    API && API !== "https://example.invalid"
+      ? `${API.replace(/\/$/, "")}/api/menu`
+      : "/menu.json";
+
+  // Fetch menu data
   const {
     data: dishes,
     isLoading,
     error,
-  } = useFetch("/menu.json");
+  } = useFetch(menuUrl);
 
   // Loading State
   if (isLoading) {
@@ -25,7 +36,7 @@ function MenuPage() {
   }
 
   // Success State
-  const filtered = dishes.filter((dish) =>
+  const filtered = (dishes ?? []).filter((dish) =>
     dish.name.toLowerCase().includes(debounced.toLowerCase())
   );
 
